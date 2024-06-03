@@ -1,11 +1,15 @@
 package com.customer.customer_api.dto;
 
+import java.util.Optional;
 import java.util.UUID;
+
+import com.customer.customer_api.entity.Customer;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record CustomerDTO(
+    
     UUID uuid, 
     @NotBlank(message = "The name cannot be blank") 
     String name, 
@@ -18,8 +22,28 @@ public record CustomerDTO(
     String phone
     ){
 
-    public CustomerDTO(String name2, String email2, String cep2, String phone2) {
-        this(UUID.randomUUID(), name2, email2, cep2, phone2);
+    public CustomerDTO (Customer customer){
+        this(
+            customer.getUuid(), 
+            customer.getName(), 
+            customer.getEmail(), 
+            customer.getCep(), 
+            customer.getPhone()
+        );
+    }
+
+    public CustomerDTO (Optional<Customer> customerOptional){
+        this(customerOptional.orElse(null));
+    }
+    
+    public Customer toCustomer(){
+        Customer customer = new Customer();
+        customer.setUuid(uuid);
+        customer.setName(name);
+        customer.setEmail(email);
+        customer.setCep(cep);
+        customer.setPhone(phone);
+        return customer;
     }
 }
 
