@@ -46,5 +46,3 @@ public record CustomerDTO(
         return customer;
     }
 }
-
-    
