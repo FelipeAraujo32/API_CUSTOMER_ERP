@@ -1,15 +1,18 @@
 package com.customer.customer_api.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.customer.customer_api.entity.Customer;
 import com.customer.customer_api.repository.CustomerRepository;
+import com.customer.customer_api.service.business_exception.NotFoundException;
+
+import jakarta.transaction.Transactional;
+
 
 @Service
 public class CustomerService {
@@ -17,29 +20,44 @@ public class CustomerService {
     @Autowired
     private CustomerRepository repository;
 
-    public List<Customer> findAllCustomer(){
-        return repository.findAll();
-    }
+    @Autowired
+    private ValidationDataService dataProduct;
 
-    public Optional<Customer> findCustomer(UUID uuid) {
-        return repository.findById(uuid);
-    }
 
-    public Customer createCustomer(Customer customer) {
-        return repository.save(customer);
-    }
-
-    public Customer updateCustomer(UUID uuid, Customer customer) throws Exception{
-        
-        Optional<Customer> optCustomer = repository.findById(uuid);
-        if(optCustomer.isEmpty()){
-            throw new Exception ("Participant not found");
+    public List<Customer> findAllCustomer() {
+        var customers = repository.findAll();
+        if (customers.isEmpty()) {
+            throw new NotFoundException("Customer list not found");
         }
-        return repository.save(customer);
-        
+        return customers;
     }
 
-    public void deleteCustomer(UUID uuid){
-        repository.deleteById(uuid);
+    public Customer findByCustomer(UUID uuid) {
+        return repository.findById(uuid).orElseThrow(NoSuchElementException::new);
+    }
+
+    @Transactional
+    public Customer createCustomer(Customer createCustomer) {
+        // Validator setting in an external class
+        dataProduct.validation(createCustomer);
+        var customer = repository.save(createCustomer);
+        return customer;
+    }
+
+    public Customer updateCustomer(UUID uuid, Customer customer) throws Exception {
+
+        Customer customerDb = this.findByCustomer(uuid);
+        if (!customerDb.getUuid().equals(uuid)){
+            throw new NotFoundException("The UUID must be the same as the one you want to update");
+        }
+        // Validator setting in an external class
+        dataProduct.validation(customer);
+        customer.setUuid(uuid);
+        return repository.save(customer);
+    }
+
+    public void deleteCustomer(UUID uuid) {
+        Customer customerDb = this.findByCustomer(uuid);
+        this.repository.delete(customerDb);
     }
 }

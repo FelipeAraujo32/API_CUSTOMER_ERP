@@ -37,7 +37,7 @@ public class CustomerController {
     @Autowired
     private CustomerService service;
 
-    @GetMapping("/api/v1/customers")
+    @GetMapping()
     @Operation(
         summary = "Get all Customers", 
         description = "Retrieve a list of all registered customers")
@@ -52,7 +52,7 @@ public class CustomerController {
         return ResponseEntity.ok(CustomerDTO);
     }
 
-    @GetMapping("/api/v1/customers/{uuid}")
+    @GetMapping("/{uuid}")
     @Operation(
         summary = "Get a customer by UUID",
         description = "Retrieve a specific customer based on its UUID")
@@ -66,11 +66,11 @@ public class CustomerController {
     })
     public ResponseEntity<CustomerDTO> findCustomer(@PathVariable UUID uuid) {
 
-        var findCustomer = service.findCustomer(uuid);
+        var findCustomer = service.findByCustomer(uuid);
         return ResponseEntity.ok(new CustomerDTO(findCustomer));
     }
 
-    @PostMapping("/api/v1/customers")
+    @PostMapping()
     @Operation(
         summary = "Create a new customer",
         description = "Createa a new customer and return the created customes's data")
@@ -84,17 +84,17 @@ public class CustomerController {
         })
     public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
 
-        var createdCustomer = service.createCustomer(customerDTO.toCustomer());
+        var createCustomer = service.createCustomer(customerDTO.toCustomer());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{uuid}")
-                .buildAndExpand(createdCustomer.getUuid())
+                .buildAndExpand(createCustomer.getUuid())
                 .toUri();
 
-        return ResponseEntity.created(location).body(new CustomerDTO(createdCustomer));
+        return ResponseEntity.created(location).body(new CustomerDTO(createCustomer));
     }
 
-    @PutMapping("/api/v1/customers/{uuid}")
+    @PutMapping("/{uuid}")
     @Operation(
         summary = "Update a customer", 
         description = "Update the data of an existing customer based on its UUID")
@@ -113,7 +113,7 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.OK).body(new CustomerDTO(updateCustomer));
     }
 
-    @DeleteMapping("/api/v1/customers/{uuid}")
+    @DeleteMapping("/{uuid}")
     @Operation(
         summary = "Delete a customer", 
         description = "Delete an existing customer based on its UUID")
