@@ -4,6 +4,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.customer.customer_api.convert.CustomerModelConvert;
+import com.customer.customer_api.dto.request.CustomerRequestDto;
 import com.customer.customer_api.dto.response.CustomerResponsetDto;
 import com.customer.customer_api.entity.CustomerModel;
 import com.customer.customer_api.repository.CustomerRepository;
@@ -31,17 +32,19 @@ public class CustomerService {
     }
 
     @Transactional
-    public CustomerResponsetDto createCustomer(CustomerModel createCustomer) {
-        validationDataService.inputDataValidation(createCustomer);
-        CustomerModel customerModel = customerRepository.save(createCustomer);
+    public CustomerResponsetDto createCustomer(CustomerRequestDto customerRequestDto) {
+        CustomerModel convertCustomerModel = customerModelConvert.toCustomerModel(customerRequestDto);
+        validationDataService.inputDataValidation(convertCustomerModel);
+        CustomerModel customerModel = customerRepository.save(convertCustomerModel);
         return customerModelConvert.toCustomerResponse(customerModel);
     }
 
-    public CustomerResponsetDto updateCustomer(UUID uuid, CustomerModel customer) throws CustomerNotFoundException {
-            this.findCustomerId(uuid);
-            validationDataService.inputDataValidation(customer);
-            customer.setCustomerId(uuid);
-            CustomerModel customerModel= customerRepository.save(customer);
+    public CustomerResponsetDto updateCustomer(UUID customerId, CustomerRequestDto customerRequestDto) throws CustomerNotFoundException {
+            this.findCustomerId(customerId);
+            CustomerModel convertCustomerModel = customerModelConvert.toCustomerModel(customerRequestDto);
+            validationDataService.inputDataValidation(convertCustomerModel);
+            convertCustomerModel.setCustomerId(customerId);
+            CustomerModel customerModel= customerRepository.save(convertCustomerModel);
             return customerModelConvert.toCustomerResponse(customerModel);
     }
 

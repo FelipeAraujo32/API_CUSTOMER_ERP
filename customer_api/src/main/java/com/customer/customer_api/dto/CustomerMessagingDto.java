@@ -18,6 +18,4 @@ public class CustomerMessagingDto {
     public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
     }
-
-    
 }

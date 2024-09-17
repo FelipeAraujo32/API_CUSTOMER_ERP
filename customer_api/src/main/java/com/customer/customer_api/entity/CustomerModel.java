@@ -52,6 +52,14 @@ public class CustomerModel {
         this.phone = phone;
     }
 
+    public UUID getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(UUID customerId) {
+        this.customerId = customerId;
+    }
+
     public String getName() {
         return name;
     }
@@ -84,11 +92,5 @@ public class CustomerModel {
         this.phone = phone;
     }
 
-    public UUID getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(UUID customerId) {
-        this.customerId = customerId;
-    }
+    
 }

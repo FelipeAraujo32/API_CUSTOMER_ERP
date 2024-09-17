@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.customer.customer_api.service.business_exception.BusinessException;
 import com.customer.customer_api.service.business_exception.CustomerNotFoundException;
 
-
 @RestControllerAdvice
 public class GlobalException {  
 
@@ -30,7 +29,7 @@ public class GlobalException {
 
     @ExceptionHandler
     public ResponseEntity<String> handleNotFoundElement(NoSuchElementException notFoundException) {
-        return new ResponseEntity<>("Resource UUID not found.", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("Resource CustomerId not found.", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler

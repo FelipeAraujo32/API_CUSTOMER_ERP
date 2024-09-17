@@ -1,11 +1,8 @@
 package com.customer.customer_api.controller;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.customer.customer_api.dto.request.CustomerRequestDto;
+import com.customer.customer_api.dto.response.CustomerResponsetDto;
 import com.customer.customer_api.service.CustomerService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,104 +27,65 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/customers")
-@Tag(
-    name = "Customer Controlelr", 
-    description = "API for customer management.")
+@Tag(name = "Customer Controlelr", description = "API for customer management.")
 public class CustomerController {
 
-    @Autowired
-    private CustomerService service;
+    private final CustomerService customerService;
 
-    @GetMapping()
-    @Operation(
-        summary = "Get all Customers", 
-        description = "Retrieve a list of all registered customers")
-    public ResponseEntity<List<CustomerRequestDto>> findAllCustomers() {
-
-        var findAllCustomers = service.findAllCustomer();
-
-        var CustomerDTO = findAllCustomers.stream()
-                .map(CustomerRequestDto::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(CustomerDTO);
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
     @GetMapping("/{uuid}")
-    @Operation(
-        summary = "Get a customer by UUID",
-        description = "Retrieve a specific customer based on its UUID")
+    @Operation(summary = "Get a customer by customerId", description = "Retrieve a specific customer based on its CustomerId")
     @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Retrieve a specific customer based on its UUID"),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Customer not found")
+            @ApiResponse(responseCode = "200", description = "Retrieve a specific customer based on its CustomerId"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
     })
-    public ResponseEntity<CustomerRequestDto> findCustomer(@PathVariable UUID uuid) {
-
-        var findCustomer = service.findByCustomer(uuid);
-        return ResponseEntity.ok(new CustomerRequestDto(findCustomer));
+    public ResponseEntity<CustomerResponsetDto> findByCustomer(@PathVariable UUID customerId) {
+        CustomerResponsetDto customerResponset = customerService.findByCustomer(customerId);
+        return ResponseEntity.ok(customerResponset);
     }
 
     @PostMapping()
-    @Operation(
-        summary = "Create a new customer",
-        description = "Createa a new customer and return the created customes's data")
-        @ApiResponses(value = {
-            @ApiResponse(
-                responseCode = "201", 
-                description = "Customer created successfully"),
-        @ApiResponse(
-            responseCode = "422",
-            description = "Invalid customer data provided")
-        })
-    public ResponseEntity<CustomerRequestDto> createCustomer(@Valid @RequestBody CustomerRequestDto customerDTO) {
-
-        var createCustomer = service.createCustomer(customerDTO.toCustomer());
+    @Operation(summary = "Create a new customer", description = "Createa a new customer and return the created customes's data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Customer created successfully"),
+            @ApiResponse(responseCode = "422", description = "Invalid customer data provided")
+    })
+    public ResponseEntity<CustomerResponsetDto> createCustomer(
+            @Valid @RequestBody CustomerRequestDto customerRequestDto) {
+        CustomerResponsetDto createCustomer = customerService.createCustomer(customerRequestDto);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{uuid}")
-                .buildAndExpand(createCustomer.getCustomerId())
+                .buildAndExpand(createCustomer.getCutomerId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(new CustomerRequestDto(createCustomer));
+        return ResponseEntity.created(location).body(createCustomer);
     }
 
     @PutMapping("/{uuid}")
-    @Operation(
-        summary = "Update a customer", 
-        description = "Update the data of an existing customer based on its UUID")
-    @ApiResponses(value = { 
-            @ApiResponse(responseCode = "200", 
-            description = "Customer updated successfully"),
-            @ApiResponse(responseCode = "404", 
-            description = "Customer not found"),
-            @ApiResponse(responseCode = "422", 
-            description = "Invalid customer data provided")
+    @Operation(summary = "Update a customer", description = "Update the data of an existing customer based on its customerId")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Customer updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Customer not found"),
+            @ApiResponse(responseCode = "422", description = "Invalid customer data provided")
     })
-    public ResponseEntity<CustomerRequestDto> updateCustomer(@PathVariable UUID uuid,
-            @Valid @RequestBody CustomerRequestDto customerDTO) throws Exception {
-
-        var updateCustomer = service.updateCustomer(uuid,customerDTO.toCustomer());
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomerRequestDto(updateCustomer));
+    public ResponseEntity<CustomerResponsetDto> updateCustomer(
+            @Valid @RequestBody CustomerRequestDto customerRequestDto, @PathVariable UUID customerIUuid) {
+        CustomerResponsetDto updateCustomer = customerService.updateCustomer(customerIUuid, customerRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(updateCustomer);
     }
 
     @DeleteMapping("/{uuid}")
-    @Operation(
-        summary = "Delete a customer", 
-        description = "Delete an existing customer based on its UUID")
-    @ApiResponses(value = { 
-        @ApiResponse(
-            responseCode = "204", 
-            description = "User deleted successfully"),
-        @ApiResponse(
-            responseCode = "404", 
-            description = "User not found")
+    @Operation(summary = "Delete a customer", description = "Delete an existing customer based on its UUID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<Void> deleteCustomer(@PathVariable UUID uuid) {
-        service.deleteCustomer(uuid);
+    public ResponseEntity<Void> deleteCustomer(@PathVariable UUID customerId) {
+        customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }
 

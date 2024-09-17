@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.customer.customer_api.dto.CustomerErrorResponseDto;
 import com.customer.customer_api.dto.CustomerMessagingDto;
-import com.customer.customer_api.entity.CustomerModel;
+import com.customer.customer_api.dto.response.CustomerResponsetDto;
 import com.customer.customer_api.service.CustomerService;
 import com.customer.customer_api.service.business_exception.CustomerNotFoundException;
 
@@ -43,10 +43,10 @@ public class CustomerResponseProducer {
     }
 
     private CustomerMessagingDto checkIftheCustomerExists(CustomerMessagingDto customerMessagingDto) {
-        CustomerModel customer = customerService.findByCustomer(customerMessagingDto.getCustomerId());
+        CustomerResponsetDto customerResponsetDto = customerService.findByCustomer(customerMessagingDto.getCustomerId());
         CustomerMessagingDto customerResponse = new CustomerMessagingDto();
         customerResponse.setOrderId(customerMessagingDto.getOrderId());
-        customerResponse.setCustomerId(customer.getCustomerId());
+        customerResponse.setCustomerId(customerResponsetDto.getCutomerId());
         return customerResponse;
     }
 
