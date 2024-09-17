@@ -13,13 +13,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-@Entity(name = "Customer")
+@Entity(name = "customer")
 @Table(name = "customer_erp")
-public class Customer {
+public class CustomerModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    private UUID customerId;
 
     @Column(nullable = false)
     @NotNull(message = "Name cannot be Null")
@@ -42,22 +42,14 @@ public class Customer {
     @NotEmpty(message = "Number phone cannot be empty")
     private String phone;
 
-    public Customer() {
+    public CustomerModel() {
     }
 
-    public Customer(String name, String email, String cep, String phone) {
+    public CustomerModel(String name, String email, String cep, String phone) {
         this.name = name;
         this.email = email;
         this.cep = cep;
         this.phone = phone;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {
@@ -90,5 +82,13 @@ public class Customer {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public UUID getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(UUID customerId) {
+        this.customerId = customerId;
     }
 }

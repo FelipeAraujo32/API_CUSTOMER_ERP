@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.customer.customer_api.dto.CustomerDTO;
+import com.customer.customer_api.dto.request.CustomerRequestDto;
 import com.customer.customer_api.service.CustomerService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,12 +41,12 @@ public class CustomerController {
     @Operation(
         summary = "Get all Customers", 
         description = "Retrieve a list of all registered customers")
-    public ResponseEntity<List<CustomerDTO>> findAllCustomers() {
+    public ResponseEntity<List<CustomerRequestDto>> findAllCustomers() {
 
         var findAllCustomers = service.findAllCustomer();
 
         var CustomerDTO = findAllCustomers.stream()
-                .map(CustomerDTO::new)
+                .map(CustomerRequestDto::new)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(CustomerDTO);
@@ -64,10 +64,10 @@ public class CustomerController {
             responseCode = "404",
             description = "Customer not found")
     })
-    public ResponseEntity<CustomerDTO> findCustomer(@PathVariable UUID uuid) {
+    public ResponseEntity<CustomerRequestDto> findCustomer(@PathVariable UUID uuid) {
 
         var findCustomer = service.findByCustomer(uuid);
-        return ResponseEntity.ok(new CustomerDTO(findCustomer));
+        return ResponseEntity.ok(new CustomerRequestDto(findCustomer));
     }
 
     @PostMapping()
@@ -82,16 +82,16 @@ public class CustomerController {
             responseCode = "422",
             description = "Invalid customer data provided")
         })
-    public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerRequestDto> createCustomer(@Valid @RequestBody CustomerRequestDto customerDTO) {
 
         var createCustomer = service.createCustomer(customerDTO.toCustomer());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{uuid}")
-                .buildAndExpand(createCustomer.getUuid())
+                .buildAndExpand(createCustomer.getCustomerId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(new CustomerDTO(createCustomer));
+        return ResponseEntity.created(location).body(new CustomerRequestDto(createCustomer));
     }
 
     @PutMapping("/{uuid}")
@@ -106,11 +106,11 @@ public class CustomerController {
             @ApiResponse(responseCode = "422", 
             description = "Invalid customer data provided")
     })
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable UUID uuid,
-            @Valid @RequestBody CustomerDTO customerDTO) throws Exception {
+    public ResponseEntity<CustomerRequestDto> updateCustomer(@PathVariable UUID uuid,
+            @Valid @RequestBody CustomerRequestDto customerDTO) throws Exception {
 
         var updateCustomer = service.updateCustomer(uuid,customerDTO.toCustomer());
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomerDTO(updateCustomer));
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomerRequestDto(updateCustomer));
     }
 
     @DeleteMapping("/{uuid}")

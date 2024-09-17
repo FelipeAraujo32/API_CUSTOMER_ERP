@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.customer.customer_api.service.business_exception.BusinessException;
-import com.customer.customer_api.service.business_exception.NotFoundException;
+import com.customer.customer_api.service.business_exception.CustomerNotFoundException;
+
 
 @RestControllerAdvice
 public class GlobalException {  
@@ -22,8 +23,8 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException notFoundException){
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<String> handleNotFoundException(CustomerNotFoundException notFoundException){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFoundException.getMessage());
     }
 
