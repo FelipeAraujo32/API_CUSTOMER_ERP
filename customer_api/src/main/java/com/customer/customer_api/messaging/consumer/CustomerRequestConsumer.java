@@ -1,30 +1,23 @@
 package com.customer.customer_api.messaging.consumer;
 
-import java.util.NoSuchElementException;
-import java.util.UUID;
-
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import com.customer.customer_api.service.CustomerService;
+import com.customer.customer_api.dto.CustomerMessagingDto;
+import com.customer.customer_api.messaging.producer.CustomerResponseProducer;
 
 @Component
 public class CustomerRequestConsumer {
 
-    private final CustomerService customerService;
+    private final CustomerResponseProducer customerResponseProducer;
 
-    public CustomerRequestConsumer(CustomerService customerService) {
-        this.customerService = customerService;
+    public CustomerRequestConsumer(CustomerResponseProducer customerResponseProducer) {
+        this.customerResponseProducer = customerResponseProducer;
     }
 
-    @RabbitListener(queues = "customer.check.queue")
-    public Boolean handleCustomerCkeck(UUID customerUuid) {
-        try {
-            customerService.findByCustomer(customerUuid);
-            return true;
-        } catch (NoSuchElementException | IllegalArgumentException e) {
-            return false;
-        }
+    @RabbitListener(queues = "customer.request.queue")
+    public void handleCustomerRequest(CustomerMessagingDto customerMessagingDto) {
+            customerResponseProducer.customerResponse(customerMessagingDto);
     }
 
 }
