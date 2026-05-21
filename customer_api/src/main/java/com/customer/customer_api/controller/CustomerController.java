@@ -27,7 +27,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/customers")
-@Tag(name = "Customer Controlelr", description = "API for customer management.")
+@Tag(name = "Customer Controller", description = "API for customer management.")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -42,7 +42,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Retrieve a specific customer based on its CustomerId"),
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
-    public ResponseEntity<CustomerResponsetDto> findByCustomer(@PathVariable UUID customerId) {
+    public ResponseEntity<CustomerResponsetDto> findByCustomer(@PathVariable("uuid") UUID customerId) {
         CustomerResponsetDto customerResponset = customerService.findByCustomer(customerId);
         return ResponseEntity.ok(customerResponset);
     }
@@ -73,8 +73,8 @@ public class CustomerController {
             @ApiResponse(responseCode = "422", description = "Invalid customer data provided")
     })
     public ResponseEntity<CustomerResponsetDto> updateCustomer(
-            @Valid @RequestBody CustomerRequestDto customerRequestDto, @PathVariable UUID customerIUuid) {
-        CustomerResponsetDto updateCustomer = customerService.updateCustomer(customerIUuid, customerRequestDto);
+            @Valid @RequestBody CustomerRequestDto customerRequestDto, @PathVariable("uuid") UUID customerId) {
+        CustomerResponsetDto updateCustomer = customerService.updateCustomer(customerId, customerRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(updateCustomer);
     }
 
@@ -84,7 +84,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "204", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<Void> deleteCustomer(@PathVariable UUID customerId) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable("uuid") UUID customerId) {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }
